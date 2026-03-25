@@ -14,7 +14,7 @@ const navigate = useNavigate()
 
 const getUser = async () => {
   try{
-    const res = await API.get(`/api/users/${userId}`);
+    const res = await axios.get(`/api/users/${userId}`);
     setUser(res.data)
     setFavorites(res.data.favorites || [])   
 

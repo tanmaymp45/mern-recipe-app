@@ -33,7 +33,7 @@ const getRecipes = async () => {
 
 const getMealPlans = async () => {
   try{
-    const res = await API.get(`/api/meals/${userId}`);
+    const res = await axios.get(`/api/meals/${userId}`);
     setMealPlans(res.data)
   }catch(err){
     console.log(err)
@@ -48,7 +48,7 @@ const addMeal = async () => {
   }
 
   try{
-    await API.post("/api/meals",{
+    await axios.post("/api/meals",{
       userId,
       day,
       mealName   
