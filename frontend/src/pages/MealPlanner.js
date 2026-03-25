@@ -2,139 +2,163 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import Navbar from "../components/Navbar"
 
-function MealPlanner(){
+function MealPlanner() {
 
-const [recipes,setRecipes] = useState([])
-const [mealPlans,setMealPlans] = useState([])
+  const [mealPlans, setMealPlans] = useState([])
 
-const [day,setDay] = useState("")
-const [mealName,setMealName] = useState("")
+  const [day, setDay] = useState("")
+  const [mealName, setMealName] = useState("")
+  const [note, setNote] = useState("")
 
-const userId = localStorage.getItem("userId")
-const API = process.env.REACT_APP_API_URL
-const days = [
-"Monday",
-"Tuesday",
-"Wednesday",
-"Thursday",
-"Friday",
-"Saturday",
-"Sunday"
-]
+  const userId = localStorage.getItem("userId")
 
-const getRecipes = async () => {
-  try{
-    const res = await axios.get(`${API}/api/recipes`);
-    setRecipes(res.data)
-  }catch(err){
-    console.log(err)
-  }
-}
+  // ✅ IMPORTANT: use backend URL
+  const API = process.env.REACT_APP_API_URL
 
-const getMealPlans = async () => {
-  try{
-    const res = await axios.get(`${API}/api/meals/${userId}`);
-    setMealPlans(res.data)
-  }catch(err){
-    console.log(err)
-  }
-}
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-const addMeal = async () => {
-
-  if(!day || !mealName){
-    alert("Please select day and enter meal")
-    return
+  // 🔹 Get meal plans
+  const getMealPlans = async () => {
+    try {
+      const res = await axios.get(`${API}/api/meals/${userId}`)
+      setMealPlans(res.data)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-  try{
-    await axios.post("/api/meals",{
-      userId,
-      day,
-      mealName   
-    })
+  // 🔹 Add meal
+  const addMeal = async () => {
+    if (!day || !mealName) {
+      alert("Please select day and enter meal")
+      return
+    }
 
-    alert("Meal Added")
+    try {
+      await axios.post(`${API}/api/meals`, {
+        userId,
+        day,
+        mealName,
+        note
+      })
 
-    setDay("")
-    setMealName("")
+      alert("Meal Added")
 
-    getMealPlans()
+      setDay("")
+      setMealName("")
+      setNote("")
 
-  }catch(err){
-    console.log(err)
+      getMealPlans()
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-}
+  useEffect(() => {
+    if (userId) getMealPlans()
+  }, [userId])
 
-useEffect(()=>{
-  getRecipes()
-  getMealPlans()
-},[])
-
-return(
-
-<div>
+  return (
+    <div>
       <Navbar />
 
       <main className="container page">
-
-        {/* 🔹 Add Meal Section */}
-        <div className="card card-pad">
-          <h2 className="section-title">Meal Planner</h2>
-
-          <div className="row row-wrap">
-
-            <select
-              className="input"
-              value={day}
-              onChange={(e) => setDay(e.target.value)}
-            >
-              <option value="">Select Day</option>
-              {days.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-
-            <input
-              className="input"
-              placeholder="Enter your meal (e.g. Pasta, Salad)"
-              value={mealName}
-              onChange={(e) => setMealName(e.target.value)}
-            />
-
-            <button className="btn btn-primary" onClick={addMeal}>
-              Add Meal
-            </button>
-
+        <div className="row row-wrap" style={{ justifyContent: "space-between", marginBottom: 14 }}>
+          <div>
+            <h2 className="section-title" style={{ marginBottom: 4 }}>
+              Meal Planner
+            </h2>
+            <div className="subtle">Plan your week in one place.</div>
           </div>
         </div>
 
-        {/* 🔹 Weekly Plan */}
-        <div className="card card-pad" style={{ marginTop: 20 }}>
-          <h3 className="section-title">Weekly Plan</h3>
+        <div className="grid grid-2" style={{ alignItems: "start" }}>
 
-          <div className="grid grid-2">
-            {days.map((d) => {
-              const meal = mealPlans.find(m => m.day === d)
+          {/* 🔹 Add Meal */}
+          <div className="card card-pad">
+            <h3 className="section-title" style={{ fontSize: 18 }}>
+              Add a meal
+            </h3>
 
-              return (
-                <div key={d} className="card card-pad">
-                  <b>{d}</b>
-                  <p style={{ marginTop: 6 }}>
-                    {meal ? meal.mealName : "No meal planned"}
-                  </p>
-                </div>
-              )
-            })}
+            <div className="form">
+              <select
+                className="select"
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+              >
+                <option value="">Select Day</option>
+                {days.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+
+              <input
+                className="input"
+                type="text"
+                placeholder="Enter your meal (e.g. Pasta, Salad)"
+                value={mealName}
+                onChange={(e) => setMealName(e.target.value)}
+              />
+
+              <textarea
+                className="textarea"
+                placeholder='Optional note (e.g. "Light dinner")'
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+
+              <button className="btn btn-primary" onClick={addMeal}>
+                Add Meal
+              </button>
+            </div>
           </div>
-        </div>
 
+          {/* 🔹 Weekly Plan */}
+          <div className="card card-pad">
+            <h3 className="section-title" style={{ fontSize: 18 }}>
+              Weekly plan
+            </h3>
+
+            <div className="grid" style={{ marginTop: 10 }}>
+              {days.map((d) => {
+                const meal = mealPlans.find((m) => m.day === d)
+
+                return (
+                  <div
+                    key={d}
+                    className="card"
+                    style={{
+                      padding: 12,
+                      borderRadius: 14,
+                      background: "rgba(255,255,255,0.04)"
+                    }}
+                  >
+                    <div className="row" style={{ justifyContent: "space-between" }}>
+                      <div style={{ fontWeight: 700 }}>{d}</div>
+                      <span className="pill">
+                        {meal ? "Planned" : "Empty"}
+                      </span>
+                    </div>
+
+                    <div className="subtle" style={{ marginTop: 6 }}>
+                      {meal ? meal.mealName || "No meal planned" : "No meal planned"}
+                    </div>
+
+                    {meal?.note && (
+                      <div className="helper" style={{ marginTop: 4 }}>
+                        Note: {meal.note}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+        </div>
       </main>
     </div>
-
-)
-
+  )
 }
 
 export default MealPlanner
