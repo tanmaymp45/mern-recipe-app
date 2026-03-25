@@ -34,58 +34,43 @@ if(!user){
 return(
 
 <div>
+  <Navbar />
 
-<Navbar/>
+  <main className="container page">
+    <div className="card card-pad">
+      <h2 className="section-title">My Profile</h2>
 
-<h2>My Profile</h2>
+      <p><b>Name:</b> {user.name}</p>
+      <p><b>Email:</b> {user.email}</p>
+    </div>
 
-<h3>Name: {user.name}</h3>
-<p>Email: {user.email}</p>
+    <div className="card card-pad" style={{ marginTop: 20 }}>
+      <h3 className="section-title">My Favorite Recipes ❤️</h3>
 
-<hr/>
+      {favorites.length === 0 ? (
+        <p>No favorite recipes yet</p>
+      ) : (
+        <div className="grid grid-4">
+          {favorites.map((r) => (
+            <div
+              key={r.id}
+              className="card recipe-card"
+              onClick={() => navigate(`/recipe/${r.id}`)}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="recipe-media">
+                <img src={r.image} alt={r.title} />
+              </div>
 
-<h3>My Favorite Recipes ❤️</h3>
-
-{favorites.length === 0 ? (
-  <p>No favorite recipes yet</p>
-) : (
-
-<div style={{
-display:"grid",
-gridTemplateColumns:"repeat(3,1fr)",
-gap:"20px"
-}}>
-
-{favorites.map((r)=>(
-
-<div
-key={r.id}
-onClick={()=>navigate(`/recipe/${r.id}`)}
-style={{
-border:"1px solid #ccc",
-padding:"10px",
-borderRadius:"10px",
-cursor:"pointer"
-}}
->
-
-<h4>{r.title}</h4>
-
-<img
-src={r.image}
-alt={r.title}
-style={{width:"100%"}}
-/>
-
-
-</div>
-
-))}
-
-</div>
-
-)}
-
+              <div className="recipe-body">
+                <h4>{r.title}</h4>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
 </div>
 
 )
